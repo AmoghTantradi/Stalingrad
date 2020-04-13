@@ -1,11 +1,11 @@
 package FinalGame;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.event.KeyEvent;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
+
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.*;
+import java.util.*;
+
 
 import Utilities.GDV5;
 
@@ -40,6 +40,14 @@ public class Tank extends Rectangle2D.Double implements GameObject {
 	}
 	
 	public void update() {}
+	
+	public boolean isInside(double dx, double dy) {
+		
+		double radius = 0.5* Math.hypot(this.getWidth(),this.getHeight());//the length of half a diagnol is the maximum radius possible
+	
+		return (Math.abs(this.getCenterX()+dx-0)>radius && Math.abs(this.getCenterY()+dy-0)>radius && Math.abs(this.getCenterX()+dx-Constants.screen_width)>radius && Math.abs(this.getCenterY()+dy-Constants.screen_height)>radius);
+		
+	}
 
 	public void update(ArrayList<Tank> enemyTanks) {
 		dx = 0;
@@ -47,13 +55,22 @@ public class Tank extends Rectangle2D.Double implements GameObject {
 		dy = 0;
 		
 		if(GDV5.KeysPressed[KeyEvent.VK_W]) {
+			
 			dx = speed*Math.sin(Math.toRadians(theta));
 			dy = -speed*Math.cos(Math.toRadians(theta));
+			if(!isInside(dx, dy)) {
+				dx = 0;
+				dy = 0;
+			}
 			
 		}
 		if(GDV5.KeysPressed[KeyEvent.VK_S]) {
 			dx = -speed*Math.sin(Math.toRadians(theta));
 			dy = +speed*Math.cos(Math.toRadians(theta));
+			if(!isInside(dx, dy)) {
+				dx = 0;
+				dy = 0;
+			}
 			
 		}
 		
@@ -87,8 +104,8 @@ public class Tank extends Rectangle2D.Double implements GameObject {
 	@SuppressWarnings("unused")
 	private void randomMovement() {//emulates car movement better-not tank movement
 	
-		 ptx = (Math.random()*Constants.screen_width/2)+Constants.screen_width/4;
-		 pty = (Math.random()*Constants.screen_height/2)+Constants.screen_height/4;
+		 ptx = (Math.random()*Constants.screen_width);
+		 pty = (Math.random()*Constants.screen_height);
 		
 		
 		movetoPoint(ptx,pty);
@@ -106,8 +123,8 @@ public class Tank extends Rectangle2D.Double implements GameObject {
 	private void synchronizedMovement() {//emultated tank movement perfectly
 		
 		if(!moving) {
-		 ptx = (Math.random()*Constants.screen_width/2)+Constants.screen_width/4;
-		 pty = (Math.random()*Constants.screen_height/2)+Constants.screen_height/4;
+		 ptx = (Math.random()*Constants.screen_width);
+		 pty = (Math.random()*Constants.screen_height);
 		}
 		 if(!this.contains(ptx, pty)) {
 			 moving = true;
