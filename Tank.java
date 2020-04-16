@@ -27,7 +27,12 @@ public class Tank extends Rectangle2D.Double implements GameObject {
 	Color col = Color.GRAY;
 	
 	public Tank() {
-		super(Constants.screen_width/2,Constants.screen_height/2,width,length);
+		this(Constants.screen_width/2,Constants.screen_height/2);
+		
+	}
+	
+	public Tank(double xpos, double ypos) {
+		super(xpos,ypos,width,length);
 		t = new Turret(this.x,this.getCenterY()-width/2);
 		t.setSize(width, width);
 	}
@@ -104,8 +109,8 @@ public class Tank extends Rectangle2D.Double implements GameObject {
 	@SuppressWarnings("unused")
 	private void randomMovement() {//emulates car movement better-not tank movement
 	
-		 ptx = (Math.random()*Constants.screen_width);
-		 pty = (Math.random()*Constants.screen_height);
+		 ptx = (Tank.width + Math.random()*(Constants.screen_width - Tank.width));
+		 pty = (Tank.width + Math.random()*(Constants.screen_height - Tank.width) );
 		
 		
 		movetoPoint(ptx,pty);

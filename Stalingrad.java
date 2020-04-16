@@ -1,5 +1,6 @@
 package FinalGame;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 
 import Utilities.GDV5;
@@ -15,6 +16,10 @@ public class Stalingrad extends GDV5 {
 		screen = new Screen();
 
 		this.setSize((int) Constants.screen_width,(int)Constants.screen_height);
+		
+		this.setTitle("Game");
+		
+		this.setBackground(Color.white);
 	}
 
 	@Override

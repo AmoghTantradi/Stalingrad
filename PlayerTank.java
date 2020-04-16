@@ -7,7 +7,9 @@ import java.util.*;
 public class PlayerTank extends Tank  {
 	
 	
-
+	public PlayerTank(double x, double y) {
+		super(x,y);
+	}
 
 
 
