@@ -12,18 +12,18 @@ import Utilities.GDV5;
 @SuppressWarnings("serial")
 public class Tank extends Rectangle2D.Double implements GameObject {
 	//tank number 2-3-7
-	double theta= 0;
-	double dTheta = 2.0f;
-	double reqTheta;
-	double speed = 1.75d;
-	double dx = 0,dy = 0;
+	private double theta= 0;
+	private double dTheta = 2.0f;
+	private double reqTheta;
+	private double speed = 1.75d;
+	private double dx = 0,dy = 0;
+	private boolean moving = false;
+	private double ptx,pty;
+	public Turret t;
+	int health = Constants.health;
+	double damage = Constants.shellDamage;
 	static double  width = 20.0d;
 	static double length = 40.0d;
-	boolean moving = false;
-	double ptx,pty;
-	Turret t;
-	int health = 100;
-	
 	Color col = Color.GRAY;
 	
 	public Tank() {
@@ -41,20 +41,24 @@ public class Tank extends Rectangle2D.Double implements GameObject {
 	return (this.health<=0);
 }	
 	public void doDamage() {
-		this.health -= Constants.shellDamage;
+		this.health -= damage;
+		Stalingrad.sound.play(1);
 	}
+	
 	
 	public void update() {}
 	
 	public boolean isInside(double dx, double dy) {
 		
-		double radius = 0.5* Math.hypot(this.getWidth(),this.getHeight());//the length of half a diagnol is the maximum radius possible
+		double radius = 0.5* Constants.tankDiagnol;//the length of half a diagnol is the maximum radius possible
 	
-		return (Math.abs(this.getCenterX()+dx-0)>radius && Math.abs(this.getCenterY()+dy-0)>radius && Math.abs(this.getCenterX()+dx-Constants.screen_width)>radius && Math.abs(this.getCenterY()+dy-Constants.screen_height)>radius);
+		return (Math.abs(this.getCenterX()+dx-0)>radius && Math.abs(this.getCenterY()+dy-Constants.screen_height*0.35)>radius && Math.abs(this.getCenterX()+dx-Constants.screen_width)>radius && Math.abs(this.getCenterY()+dy-Constants.screen_height)>radius);
 		
 	}
 
 	public void update(ArrayList<Tank> enemyTanks) {
+		
+		//this method is for the key-controlled player tank
 		dx = 0;
 		
 		dy = 0;
@@ -81,29 +85,35 @@ public class Tank extends Rectangle2D.Double implements GameObject {
 		
 		if(GDV5.KeysPressed[KeyEvent.VK_A]) {
 			this.theta-=dTheta;
+			this.t.theta -= dTheta;//new change here: the turret moves with the tank as well
 			theta%=360;
+			this.t.theta%=360;
 		}
 		if(GDV5.KeysPressed[KeyEvent.VK_D]) {
 			this.theta+=dTheta;
+			this.t.theta+=dTheta;//new change over here: the turret moves with the tank as well
 			theta%=360;
+			this.t.theta%=360;
 		}
-		t.update( enemyTanks);
+		t.update(enemyTanks);
 		this.setRect(this.x+dx, this.y+dy, this.getWidth(),this.getHeight());
 		t.shiftTurret(dx, dy);
 		
 	}
 	
 	
-	public void update(Tank s) {
+	public void update(Tank s, ArrayList<Tank>enemyTanks) {//s is the tank its gonna target and in case it misses(0r hits its target) enemyTanks is present for the collision handling
 		// TODO Auto-generated method stub;
 		
+		
+		//this method is for the autonomous tanks
 
 		synchronizedMovement();//emulates tank movement better
 
 		
 		t.shiftTurret(dx, dy);
 		this.setRect(this.x+this.dx,this.y+this.dy,width,length);
-		t.update(s);
+		t.update(s,enemyTanks);
 	}
 	
 	@SuppressWarnings("unused")
@@ -125,7 +135,7 @@ public class Tank extends Rectangle2D.Double implements GameObject {
 		dy = 0;
 	}
 	
-	private void synchronizedMovement() {//emultated tank movement perfectly
+	private void synchronizedMovement() {//emultates tank movement perfectly
 		
 		if(!moving) {
 		 ptx = (Math.random()*Constants.screen_width);
@@ -139,6 +149,12 @@ public class Tank extends Rectangle2D.Double implements GameObject {
 
 					dx = speed*Math.sin(Math.toRadians(theta));
 					dy = -speed*Math.cos(Math.toRadians(theta));
+					
+					if(!isInside(dx,dy)) {//added this new thing here to keep the autonomous  tanks inside the screen 
+						dx = 0;
+						dy = 0;
+						moving = false;
+					}
 			 
 		 }
 		
@@ -193,7 +209,7 @@ public class Tank extends Rectangle2D.Double implements GameObject {
 			}
 
 		}
-
+		
 		
 
 		

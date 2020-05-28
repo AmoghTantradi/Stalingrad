@@ -11,16 +11,18 @@ import Utilities.Timer;
 @SuppressWarnings("serial")
 public class Turret extends Rectangle2D.Double implements GameObject {
 	
+	
+	private boolean fire = false;
+	private double reqTheta;
+	private double sizex = 30.0f,sizey = 30.0f;
+	private ArrayList<Laser> l;
+	private ArrayList<Explosion> e;
+	private Timer t;
+	private Polygon barrel;
+	boolean fired = false;
 	double theta = 0;
 	double dTheta = 2.0f;
-	double reqTheta;
-	boolean fire = false;
-	private double sizex = 30.0f,sizey = 30.0f;
-	ArrayList<Laser> l;
-	ArrayList<Explosion> e;
-	Timer t;
 	Color col = Color.lightGray;
-	Polygon barrel;
 	
 	public Turret( double x, double y) {
 	super(x, y,30,30);
@@ -58,6 +60,7 @@ public class Turret extends Rectangle2D.Double implements GameObject {
 	@Override
 	public void update() {}
 	
+	
 	public void update(ArrayList<Tank> enemyTanks) {
 		
 		
@@ -70,10 +73,21 @@ public class Turret extends Rectangle2D.Double implements GameObject {
 			theta+=dTheta;
 			theta%=360;
 		}
-		if(GDV5.KeysTyped[KeyEvent.VK_UP]) {
-			//fire = true;
-			l.add(new Laser(this));
-			GDV5.KeysTyped[KeyEvent.VK_UP] = false; 
+		if(GDV5.KeysTyped[KeyEvent.VK_UP] ) {
+			
+			if (!fired) {
+				l.add(new Laser(this));
+				Stalingrad.sound.play(1);
+				fired = true;
+				GDV5.KeysTyped[KeyEvent.VK_UP] = false; 
+			}
+			else {
+				
+				
+				GDV5.KeysTyped[KeyEvent.VK_UP] = false; 
+			}
+		
+			
 		}
 		
 		for(int i = 0 ; i < enemyTanks.size(); i++) {
@@ -89,10 +103,14 @@ public class Turret extends Rectangle2D.Double implements GameObject {
 		
 		updateExplosions();
 		
+		if(t.update()) {
+			fired = false;
+		}
+		
 		
 	}
 
-	public void update(Tank s) {
+	public void update(Tank s, ArrayList<Tank> enemyTanks) {
 		// TODO Auto-generated method stub
 		
 		//calculate angle between itself and the snake
@@ -102,7 +120,7 @@ public class Turret extends Rectangle2D.Double implements GameObject {
 		removeLaser();
 		//check if any lasers are still active
 
-		weaponSystems(s);	//aims the turret at the snake and does collision handling 
+		weaponSystems(s,enemyTanks);	//aims the turret at the snake and does collision handling for all tanks
 	
 		updateExplosions();
 		
@@ -113,6 +131,7 @@ public class Turret extends Rectangle2D.Double implements GameObject {
 		if(fire) {
 			if(t.update()) {
 				l.add(new Laser(this));
+				Stalingrad.sound.play(1);
 				fire = false;//shot is fired, stop shooting 
 			}
 		}
@@ -132,6 +151,7 @@ public class Turret extends Rectangle2D.Double implements GameObject {
 			e.get(i).update();
 			if(e.get(i).particles.size() == 0) {
 				e.remove(i);
+				i--;
 			}
 		}
 	}
@@ -142,15 +162,18 @@ public class Turret extends Rectangle2D.Double implements GameObject {
 			
 			if(l.get(i).outBounds()) {
 				l.remove(i);
+				i--;
 			}
 		}
 	}
 	
-	private void weaponSystems(Tank s) {
+	private void weaponSystems(Tank s, ArrayList<Tank> enemyTanks) {
 		
 		changeOrientation(s.getCenterX(),s.getCenterY());
 		
-		hitBox(s);
+		for(int i = 0; i < enemyTanks.size(); i++) {
+			hitBox(enemyTanks.get(i));
+		}
 	}
 		
 		
@@ -215,6 +238,7 @@ public class Turret extends Rectangle2D.Double implements GameObject {
 				s.doDamage();
 				e.add(new Explosion(s.getCenterX(),s.getCenterY()));
 				l.remove(i);
+				i--;
 			}
 		}
 	}
@@ -245,9 +269,6 @@ public class Turret extends Rectangle2D.Double implements GameObject {
 			e.get(i).draw(win);
 		}
 		
-		//win.drawLine((int)this.getCenterX(), (int)this.getCenterY(), (int)(this.getCenterX()+(20*Math.sin(Math.toRadians(theta)))), 
-		//		(int)(this.getCenterY()-((20*Math.cos(Math.toRadians(theta))))));
-	
 	
 	}
 

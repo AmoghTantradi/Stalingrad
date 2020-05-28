@@ -8,9 +8,9 @@ public class Explosion implements GameObject {
 	
 	ArrayList <ExplosionParticles> particles;
 	
-	Random rand;
+	private Random rand;
 	
-	double speed = 10;
+	private double speed = 10;
 	
 	public Explosion(double a, double b) {
 		
@@ -34,6 +34,7 @@ public class Explosion implements GameObject {
 			particles.get(i).update();
 			if(particles.get(i).outBounds() || particles.get(i).dx == 0 && particles.get(i).dy == 0) {
 				particles.remove(i);
+				i--;
 			}
 		}
 		

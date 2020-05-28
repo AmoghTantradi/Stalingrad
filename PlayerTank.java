@@ -5,7 +5,7 @@ import java.util.*;
 
 @SuppressWarnings("serial")
 public class PlayerTank extends Tank  {
-	
+
 	
 	public PlayerTank(double x, double y) {
 		super(x,y);
@@ -16,10 +16,9 @@ public class PlayerTank extends Tank  {
 
 
 	public void update( ArrayList<Tank> enemyTanks) {
-		
+	
 		
 		super.update( enemyTanks);
-		
 		
 	}
 	
